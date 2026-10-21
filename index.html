@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Digital & Pemesanan Kafe</title>
+    <style>
+        /* ==========================================
+           VARIABEL TEMA & RESET DASAR
+           ========================================== */
+        :root {
+            --primary-color: #e67e22;      /* Warna aksen utama (Oranye Kafe) */
+            --primary-dark: #d35400;       /* Warna saat tombol ditekan */
+            --bg-color: #f8f9fa;           /* Warna latar belakang halaman */
+            --card-bg: #ffffff;            /* Warna latar belakang kartu menu */
+            --text-primary: #2c3e50;       /* Warna teks judul */
+            --text-secondary: #666666;     /* Warna deskripsi */
+            --border-radius: 12px;         /* Sudut kebulatan elemen */
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding: 16px;
+            max-width: 480px; /* Lebar maksimal tampilan ponsel */
+            margin: 0 auto;
+            min-height: 100vh;
+            padding-bottom: 90px; /* Ruang untuk bar keranjang melayang di bawah */
+        }
+
+        /* ==========================================
+           HEADER KAFE
+           ========================================== */
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-top: 10px;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        header p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* ==========================================
+           NAVIGASI KATEGORI (SCROLL HORIZONTAL)
+           ========================================== */
+        .categories {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+            scrollbar-width: none;
+        }
+
+        .categories::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-btn {
+            background-color: #e2e8f0;
+            color: #4a5568;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .category-btn:active {
+            transform: scale(0.95);
+        }
+
+        .category-btn.active {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(230, 126, 34, 0.4);
+        }
+
+        /* ==========================================
+           DAFTAR KARTU MENU
+           ========================================== */
+        .menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .menu-card {
+            display: flex;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            align-items: center;
+        }
+
+        .menu-card img {
+            width: 95px;
+            height: 95px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .menu-info {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex: 1;
+        }
+
+        .menu-info h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+
+        .menu-info p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .menu-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-price {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .add-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .add-btn:active {
+            background-color: var(--primary-dark);
+            transform: scale(0.95);
+        }
+
+        /* ==========================================
+           FLOATING CART BAR (KERANJANG DI BAWAH)
+           ========================================== */
+        .cart-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 12px 16px;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 480px;
+            margin: 0 auto;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            z-index: 100;
+        }
+
+        .cart-info {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .cart-info span {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .checkout-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .checkout-btn:active {
+            background-color: #219653;
+        }
+
+        /* Modal / Form Meja */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .modal-content input, .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .modal-actions button {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-cancel { background: #e2e8f0; color: #333; }
+        .btn-confirm { background: #27ae60; color: white; }
+    </style>
+</head>
+<body>
+
+    <!-- Bagian Header -->
+    <header>
+        <h1>☕ Kopi Senja</h1>
+        <p>Pilih Menu & Pesan Langsung dari Meja Anda</p>
+    </header>
+
+    <!-- Tombol Filter Kategori -->
+    <div class="categories">
+        <button class="category-btn active" onclick="filterMenu('semua', this)">Semua</button>
+        <button class="category-btn" onclick="filterMenu('kopi', this)">Kopi</button>
+        <button class="category-btn" onclick="filterMenu('non-kopi', this)">Non-Kopi</button>
+        <button class="category-btn" onclick="filterMenu('makanan', this)">Makanan</button>
+    </div>
+
+    <!-- Tempat Munculnya Daftar Menu -->
+    <div class="menu-list" id="menuContainer"></div>
+
+    <!-- Keranjang Melayang di Bawah -->
+    <div class="cart-bar" id="cartBar">
+        <div class="cart-info">
+            <div id="cartCount">0 Item</div>
+            <span id="cartTotal">Rp 0</span>
+        </div>
+        <button class="checkout-btn" onclick="bukaModal()">Pesan & Bayar 🛒</button>
+    </div>
+
+    <!-- Modal Input No Meja & Metode Pembayaran -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <h3>Konfirmasi Pesanan</h3>
+            <label style="font-size: 0.8rem; color: #666;">Nomor Meja:</label>
+            <input type="text" id="noMeja" placeholder="Contoh: Meja 05">
+
+            <label style="font-size: 0.8rem; color: #666;">Metode Pembayaran:</label>
+            <select id="metodeBayar">
+                <option value="Kasir (Tunai / QRIS)">Bayar di Kasir (Tunai / QRIS Kafe)</option>
+                <option value="Transfer Bank">Transfer Bank / E-Wallet</option>
+            </select>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="tutupModal()">Batal</button>
+                <button class="btn-confirm" onclick="kirimPesananWhatsApp()">Kirim ke WhatsApp</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Menu Kafe
+        const dataMenu = [
+            { id: 1, nama: "Kopi Susu Gula Aren", kategori: "kopi", harga: 18000, hargaFormatted: "Rp 18.000", deskripsi: "Espresso khas dengan susu segar dan gula aren asli.", gambar: "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=300" },
+            { id: 2, nama: "Americano Cold", kategori: "kopi", harga: 15000, hargaFormatted: "Rp 15.000", deskripsi: "Seduhan kopi hitam dingin segar tanpa gula.", gambar: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=300" },
+            { id: 3, nama: "Matcha Latte", kategori: "non-kopi", harga: 22000, hargaFormatted: "Rp 22.000", deskripsi: "Bubuk matcha Jepang premium digabung susu segar.", gambar: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=300" },
+            { id: 4, nama: "French Fries Classic", kategori: "makanan", harga: 14000, hargaFormatted: "Rp 14.000", deskripsi: "Kentang goreng renyah disajikan dengan saus sambal.", gambar: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=300" }
+        ];
+
+        let keranjang = [];
+
+        // Fungsi Tampilkan Menu
+        function tampilkanMenu(items) {
+            const container = document.getElementById("menuContainer");
+            container.innerHTML = "";
+
+            items.forEach(item => {
+                const kartuHTML = `
+                    <div class="menu-card">
+                        <img src="${item.gambar}" alt="${item.nama}">
+                        <div class="menu-info">
+                            <h3>${item.nama}</h3>
+                            <p>${item.deskripsi}</p>
+                            <div class="menu-footer">
+                                <span class="menu-price">${item.hargaFormatted}</span>
+                                <button class="add-btn" onclick="tambahKeKeranjang(${item.id})">+ Tambah</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += kartuHTML;
+            });
+        }
+
+        // Fungsi Filter Kategori
+        function filterMenu(kategori, tombol) {
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            tombol.classList.add('active');
+
+            if (kategori === 'semua') {
+                tampilkanMenu(dataMenu);
+            } else {
+                const hasilFilter = dataMenu.filter(item => item.kategori === kategori);
+                tampilkanMenu(hasilFilter);
+            }
+        }
+
+        // Tambah ke Keranjang
+        function tambahKeKeranjang(id) {
+            const produk = dataMenu.find(item => item.id === id);
+            const itemAda = keranjang.find(item => item.id === id);
+
+            if (itemAda) {
+                itemAda.jumlah += 1;
+            } else {
+                keranjang.push({ ...produk, jumlah: 1 });
+            }
+            updateKeranjangUI();
+        }
+
+        // Update Tampilan Keranjang (Floating Bar)
+        function updateKeranjangUI() {
+            let totalItem = 0;
+            let totalHarga = 0;
+
+            keranjang.forEach(item => {
+                totalItem += item.jumlah;
+                totalHarga += item.harga * item.jumlah;
+            });
+
+            document.getElementById("cartCount").innerText = `${totalItem} Item Dipilih`;
+            document.getElementById("cartTotal").innerText = `Rp ${totalHarga.toLocaleString('id-ID')}`;
+        }
+
+        // Modal Kontrol
+        function bukaModal() {
+            if (keranjang.length === 0) {
+                alert("Keranjang masih kosong! Silakan pilih menu terlebih dahulu.");
+                return;
+            }
+            document.getElementById("orderModal").style.display = "flex";
+        }
+
+        function tutupModal() {
+            document.getElementById("orderModal").style.display = "none";
+        }
+
+        // Kirim Pesanan via WhatsApp
+        function kirimPesananWhatsApp() {
+            const noMeja = document.getElementById("noMeja").value.trim();
+            const metodeBayar = document.getElementById("metodeBayar").value;
+
+            if (!noMeja) {
+                alert("Mohon masukkan nomor meja Anda terlebih dahulu!");
+                return;
+            }
+
+            let pesan = `Halo Kak, saya ingin memesan menu dari kafe:\n\n`;
+            pesan += `📍 *Nomor Meja:* ${noMeja}\n`;
+            pesan += `💳 *Metode Pembayaran:* ${metodeBayar}\n\n`;
+            pesan += `*Daftar Pesanan:*\n`;
+
+            let totalHarga = 0;
+            keranjang.forEach((item, index) => {
+                let subtotal = item.harga * item.jumlah;
+                totalHarga += subtotal;
+                pesan += `${index + 1}. ${item.nama} (${item.jumlah}x) - Rp ${subtotal.toLocaleString('id-ID')}\n`;
+            });
+
+            pesan += `\n*Total Pembayaran: Rp ${totalHarga.toLocaleString('id-ID')}*\n\nMohon segera diproses ya, terima kasih!`;
+
+            // Ganti nomor WhatsApp di bawah dengan nomor WhatsApp kasir kafe (format internasional, misal: 6281234567890)
+            const nomorWhatsAppKafe = "6281234567890"; 
+            const urlWhatsApp = `https://wa.me/${nomorWhatsAppKafe}?text=${encodeURIComponent(pesan)}`;
+
+            window.open(urlWhatsApp, '_blank');
+        }
+
+        // Inisialisasi awal
+        tampilkanMenu(dataMenu);
+    </script>
+</body>
+</html>
